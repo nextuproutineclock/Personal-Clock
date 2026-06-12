@@ -94,17 +94,37 @@
   </div>
 
   <!-- App logic -->
+  <script src="supabase-sync.js"></script>
   <script src="app.js?v=12"></script>
 
   <!-- Button handlers -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("edit-schedule")?.addEventListener("click", () => {
         window.location.href = "./setup.html";
       });
 
       document.getElementById("feedback-button")?.addEventListener("click", () => {
         window.open("https://docs.google.com/forms/d/e/1FAIpQLSdBZ_mIHng_bV12cy0BpQKiRwdXhWgwqj-NNfIWHjNPHFuXQA/viewform?usp=publish-editor", "_blank");
+      });
+      try {
+        const cloud = await loadScheduleFromCloud();
+        if (cloud) {
+          if (cloud.schedule) { localStorage.setItem("routineClockSchedule", JSON.stringify(cloud.schedule)); scheduleData = cloud.schedule; }
+          if (cloud.focusSchedule) { localStorage.setItem("routineClockFocusSchedule", JSON.stringify(cloud.focusSchedule)); focusScheduleData = cloud.focusSchedule; }
+        }
+      } catch(e) { console.warn("[Sync] load failed:", e); }
+
+      startRealtimeSync(async () => {
+        try {
+          const cloud = await loadScheduleFromCloud();
+          if (cloud) {
+            if (cloud.schedule) { localStorage.setItem("routineClockSchedule", JSON.stringify(cloud.schedule)); scheduleData = cloud.schedule; }
+            if (cloud.focusSchedule) { localStorage.setItem("routineClockFocusSchedule", JSON.stringify(cloud.focusSchedule)); focusScheduleData = cloud.focusSchedule; }
+            currentMode = "";
+            currentActivityIndex = -1;
+          }
+        } catch(e) { console.warn("[Sync] realtime failed:", e); }
       });
     });
   </script>
