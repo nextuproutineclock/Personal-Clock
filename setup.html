@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NextUp - Parent Setup</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QKPMS6ZSTF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QKPMS6ZSTF');
+  </script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:#f0f0ec;color:#1a1a1a;padding:0;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+    .setup-shell{max-width:540px;margin:0 auto;padding:1.25rem 1rem 3rem}
+    .setup-header{text-align:center;margin-bottom:1.5rem}
+    .setup-header h1{font-size:1.4rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:0.3rem}
+    .setup-header p{font-size:0.82rem;color:#666;line-height:1.45}
+    .back-link{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.85rem;color:#4b6584;text-decoration:none;font-weight:600;margin-bottom:0.75rem}
+    .back-link:hover{color:#2c3e50}
+    .section{background:#fff;border-radius:12px;padding:1.1rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+    .section h2{font-size:1.05rem;font-weight:700;margin-bottom:0.15rem;letter-spacing:-0.01em}
+    .section .hint{font-size:0.78rem;color:#888;margin-bottom:0.75rem;line-height:1.4}
+    .palette-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem}
+    .palette-option{display:flex;align-items:center;gap:0.5rem;padding:0.55rem 0.65rem;border-radius:8px;border:1.5px solid #e5e7eb;cursor:pointer;transition:all 0.15s ease;background:#fafafa}
+    .palette-option:has(input:checked){border-color:#2c3e50;background:#f0f4f8;box-shadow:0 0 0 1px #2c3e50}
+    .palette-option input[type="radio"]{display:none}
+    .palette-option .palette-name{font-size:0.82rem;font-weight:600;color:#333}
+    .palette-dots{display:flex;gap:2px;border-radius:99px;overflow:hidden}
+    .palette-dots span{width:14px;height:14px}
+    .activity-list{display:flex;flex-direction:column;gap:0.5rem}
+    .activity-row{display:grid;grid-template-columns:1fr auto auto 4.5rem;gap:0.4rem;align-items:end;padding:0.6rem;background:#fafafa;border-radius:8px;border:1px solid #eee}
+    .activity-row input{font-family:inherit;font-size:0.88rem;border:1px solid #ddd;border-radius:6px;padding:0.45rem 0.5rem;background:#fff;color:#1a1a1a;transition:border-color 0.15s ease;width:100%}
+    .activity-row input:focus{outline:none;border-color:#2c3e50;box-shadow:0 0 0 2px rgba(44,62,80,0.1)}
+    .input-time{width:5.5rem}
+    .input-icon{text-align:center;font-size:1.1rem}
+    .input-minutes{width:3.5rem;text-align:center}
+    .row-field{display:flex;flex-direction:column;gap:0.15rem}
+    .row-field .field-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;color:#999;font-weight:600}
+
+    /* Icon + photo upload field */
+    .icon-photo-field{display:flex;flex-direction:column;gap:0.15rem}
+    .icon-photo-field .field-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;color:#999;font-weight:600}
+    .icon-photo-wrap{display:flex;align-items:center;gap:0.3rem}
+    .icon-photo-wrap .input-icon{width:2.2rem;text-align:center;font-size:1.1rem;padding:0.35rem 0.2rem}
+    .photo-upload-btn{width:28px;height:28px;border-radius:50%;border:1.5px dashed #bbb;background:#f5f5f5;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#999;transition:all 0.15s ease;flex-shrink:0;overflow:hidden;padding:0}
+    .photo-upload-btn:hover{border-color:#2c3e50;color:#2c3e50;background:#eef2f7}
+    .photo-upload-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .photo-upload-btn input[type="file"]{display:none}
+    .photo-remove-btn{width:16px;height:16px;border-radius:50%;border:none;background:#ef4444;color:#fff;font-size:0.6rem;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;padding:0;line-height:1}
+    .photo-remove-btn.visible{display:flex}
+
+    .row-actions{display:flex;gap:0.5rem;margin-top:0.6rem}
+    .btn-sm{padding:0.45rem 0.85rem;font-size:0.82rem;font-weight:600;border-radius:6px;border:none;cursor:pointer;transition:all 0.15s ease}
+    .btn-sm:active{transform:scale(0.97)}
+    .btn-add{background:#f0f4f8;color:#2c3e50;border:1px solid #d1d5db}
+    .btn-add:active{background:#e2e8f0}
+    .btn-remove{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+    .btn-remove:active{background:#fee2e2}
+    .focus-time-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.75rem}
+    .focus-time-row label{font-size:0.88rem;font-weight:600}
+    .focus-time-row input{font-family:inherit;font-size:0.9rem;padding:0.45rem 0.5rem;border:1px solid #ddd;border-radius:6px;background:#fff}
+    .focus-time-row input:focus{outline:none;border-color:#2c3e50;box-shadow:0 0 0 2px rgba(44,62,80,0.1)}
+    .save-section{text-align:center}
+    .btn-save{display:block;width:100%;padding:0.75rem;font-size:1rem;font-weight:700;border-radius:10px;border:none;cursor:pointer;background:#2c3e50;color:#fff;box-shadow:0 2px 8px rgba(44,62,80,0.2);transition:all 0.15s ease;margin-bottom:0.6rem}
+    .btn-save:active{background:#1a2a38;transform:scale(0.98)}
+    .btn-clear{display:block;width:100%;padding:0.6rem;font-size:0.88rem;font-weight:600;border-radius:8px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#555;transition:all 0.15s ease}
+    .btn-clear:active{background:#f5f5f5}
+    .status-msg{font-size:0.82rem;color:#16a34a;margin-top:0.5rem;min-height:1.2em}
+    @media(max-width:560px){
+      .setup-shell{padding:1rem 0.75rem 2.5rem}
+      .setup-header h1{font-size:1.25rem}
+      .activity-row{grid-template-columns:1fr;gap:0.35rem;padding:0.7rem}
+      .activity-row .input-time,.activity-row .input-minutes{width:100%}
+      .icon-photo-wrap{justify-content:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="setup-shell">
+    <a href="./index.html" class="back-link">&larr; Back to clock</a>
+    <div class="setup-header">
+      <h1>Parent Setup</h1>
+      <p>Customize the schedule and icons for your child's routine clock. You can use emoji or upload a photo for each activity.</p>
+    </div>
+
+    <div class="section">
+      <h2>Color Palette</h2>
+      <p class="hint">Choose colors for the clock wedges.</p>
+      <div class="palette-grid">
+        <label class="palette-option"><input type="radio" name="palette" value="soft" checked /><span class="palette-name">Soft</span><span class="palette-dots"><span style="background:#fde68a"></span><span style="background:#bfdbfe"></span><span style="background:#bbf7d0"></span><span style="background:#fecaca"></span></span></label>
+        <label class="palette-option"><input type="radio" name="palette" value="bold" /><span class="palette-name">Bold</span><span class="palette-dots"><span style="background:#f97316"></span><span style="background:#22c55e"></span><span style="background:#3b82f6"></span><span style="background:#e11d48"></span></span></label>
+        <label class="palette-option"><input type="radio" name="palette" value="calm" /><span class="palette-name">Calm</span><span class="palette-dots"><span style="background:#a5b4fc"></span><span style="background:#7dd3fc"></span><span style="background:#6ee7b7"></span><span style="background:#fde68a"></span></span></label>
+        <label class="palette-option"><input type="radio" name="palette" value="neutrals" /><span class="palette-name">Neutral</span><span class="palette-dots"><span style="background:#f5f5dc"></span><span style="background:#f4e1c1"></span><span style="background:#e8c39e"></span><span style="background:#d2a679"></span></span></label>
+        <label class="palette-option"><input type="radio" name="palette" value="highcontrast" /><span class="palette-name">High Contrast</span><span class="palette-dots"><span style="background:#FFD700"></span><span style="background:#0000FF"></span><span style="background:#FF0000"></span><span style="background:#00CC00"></span></span></label>
+        <label class="palette-option"><input type="radio" name="palette" value="earth" /><span class="palette-name">Earth</span><span class="palette-dots"><span style="background:#8B9D6B"></span><span style="background:#C17A4A"></span><span style="background:#D4A57B"></span><span style="background:#6B7F5E"></span></span></label>
+        <label class="palette-option"><input type="radio" name="palette" value="ocean" /><span class="palette-name">Ocean</span><span class="palette-dots"><span style="background:#0891B2"></span><span style="background:#06B6D4"></span><span style="background:#5EEAD4"></span><span style="background:#155E75"></span></span></label>
+        <label class="palette-option"><input type="radio" name="palette" value="sunset" /><span class="palette-name">Sunset</span><span class="palette-dots"><span style="background:#F97316"></span><span style="background:#FB923C"></span><span style="background:#F472B6"></span><span style="background:#E11D48"></span></span></label>
+      </div>
+    </div>
+
+    <div class="section"><h2>Weekday Daytime</h2><p class="hint">Mon-Fri, 7am to 7pm</p>
+      <div class="activity-list" id="weekday-day-rows"></div>
+      <div class="row-actions"><button type="button" class="btn-sm btn-add" id="add-weekday-day-row">+ Add activity</button><button type="button" class="btn-sm btn-remove" id="remove-weekday-day-row">Remove last</button></div>
+    </div>
+
+    <div class="section"><h2>Weekday Nighttime</h2><p class="hint">Mon-Fri, 7pm to 7am</p>
+      <div class="activity-list" id="weekday-night-rows"></div>
+      <div class="row-actions"><button type="button" class="btn-sm btn-add" id="add-weekday-night-row">+ Add activity</button><button type="button" class="btn-sm btn-remove" id="remove-weekday-night-row">Remove last</button></div>
+    </div>
+
+    <div class="section"><h2>Weekend Daytime</h2><p class="hint">Sat-Sun, 7am to 7pm</p>
+      <div class="activity-list" id="weekend-day-rows"></div>
+      <div class="row-actions"><button type="button" class="btn-sm btn-add" id="add-weekend-day-row">+ Add activity</button><button type="button" class="btn-sm btn-remove" id="remove-weekend-day-row">Remove last</button></div>
+    </div>
+
+    <div class="section"><h2>Weekend Nighttime</h2><p class="hint">Sat-Sun, 7pm to 7am</p>
+      <div class="activity-list" id="weekend-night-rows"></div>
+      <div class="row-actions"><button type="button" class="btn-sm btn-add" id="add-weekend-night-row">+ Add activity</button><button type="button" class="btn-sm btn-remove" id="remove-weekend-night-row">Remove last</button></div>
+    </div>
+
+    <div class="section"><h2>1-Hour Focus Session</h2><p class="hint">Great for therapy, ABA, tutoring. Enter minute offsets (0=start, 60=end).</p>
+      <div class="focus-time-row"><label for="focus-start-time">Start time:</label><input type="time" id="focus-start-time" value="14:00" /></div>
+      <div class="activity-list" id="focus-rows"></div>
+      <div class="row-actions"><button type="button" class="btn-sm btn-add" id="add-focus-row">+ Add activity</button><button type="button" class="btn-sm btn-remove" id="remove-focus-row">Remove last</button></div>
+    </div>
+
+    <div class="section save-section">
+      <h2>Save</h2>
+      <p class="hint">Saves to this device only. Set up each device separately.</p>
+      <button class="btn-save" id="save-and-open">Save &amp; View Clock</button>
+      <button class="btn-clear" id="clear-schedule" type="button">Clear saved schedule</button>
+      <p id="status" class="status-msg"></p>
+    </div>
+  </div>
+
+  <script>
+    const PALETTES={soft:["#fde68a","#bfdbfe","#bbf7d0","#fecaca","#e9d5ff","#fee2e2"],bold:["#f97316","#22c55e","#3b82f6","#e11d48","#a855f7","#0ea5e9"],calm:["#a5b4fc","#7dd3fc","#6ee7b7","#fde68a","#f9a8d4","#c4b5fd"],neutrals:["#f5f5dc","#f4e1c1","#e8c39e","#d2a679","#b58863","#8b5a2b"],highcontrast:["#FFD700","#0000FF","#FF0000","#00CC00","#FF6600","#FFFFFF"],earth:["#8B9D6B","#C17A4A","#D4A57B","#6B7F5E","#A0522D","#C9B98E"],ocean:["#0891B2","#06B6D4","#5EEAD4","#155E75","#A5F3FC","#2DD4BF"],sunset:["#F97316","#FB923C","#F472B6","#E11D48","#FBBF24","#FDA4AF"]};
+
+    // Resize an image file to a small circular base64 PNG (60x60)
+    function processPhoto(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement("canvas");
+            const size = 120;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+
+            // Crop to square (center crop)
+            const min = Math.min(img.width, img.height);
+            const sx = (img.width - min) / 2;
+            const sy = (img.height - min) / 2;
+
+            // Draw circular clip
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+
+            ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+            resolve(canvas.toDataURL("image/png", 0.8));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function iconFieldHTML(icon, photo) {
+      const hasPhoto = photo && photo.startsWith("data:");
+      return `
+        <div class="icon-photo-field">
+          <span class="field-label">Icon / Photo</span>
+          <div class="icon-photo-wrap">
+            <input type="text" class="input-icon" value="${icon || ""}" placeholder="emoji" />
+            <label class="photo-upload-btn" title="Upload photo">
+              ${hasPhoto ? '<img src="' + photo + '" />' : '<span>📷</span>'}
+              <input type="file" accept="image/*" class="photo-file-input" />
+            </label>
+            <button type="button" class="photo-remove-btn ${hasPhoto ? 'visible' : ''}" title="Remove photo">&times;</button>
+            <input type="hidden" class="photo-data" value="${photo || ""}" />
+          </div>
+        </div>`;
+    }
+
+    function makeRowHTML(isMin, label, startVal, endVal, icon, photo) {
+      const labelField = `<div class="row-field"><span class="field-label">Activity</span><input type="text" class="input-label" value="${label}" /></div>`;
+      let startField, endField;
+      if (isMin) {
+        startField = `<div class="row-field"><span class="field-label">Start (min)</span><input type="number" class="input-minutes" min="0" max="60" value="${startVal}" /></div>`;
+        endField = `<div class="row-field"><span class="field-label">End (min)</span><input type="number" class="input-minutes" min="0" max="60" value="${endVal}" /></div>`;
+      } else {
+        startField = `<div class="row-field"><span class="field-label">Start</span><input type="time" class="input-time" value="${startVal}" /></div>`;
+        endField = `<div class="row-field"><span class="field-label">End</span><input type="time" class="input-time" value="${endVal}" /></div>`;
+      }
+      return labelField + startField + endField + iconFieldHTML(icon, photo);
+    }
+
+    function wirePhotoHandlers(row) {
+      const fileInput = row.querySelector(".photo-file-input");
+      const uploadBtn = row.querySelector(".photo-upload-btn");
+      const removeBtn = row.querySelector(".photo-remove-btn");
+      const hiddenInput = row.querySelector(".photo-data");
+
+      if (fileInput) {
+        fileInput.addEventListener("change", async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          try {
+            const dataUrl = await processPhoto(file);
+            hiddenInput.value = dataUrl;
+            uploadBtn.innerHTML = '<img src="' + dataUrl + '" /><input type="file" accept="image/*" class="photo-file-input" />';
+            wirePhotoHandlers(row); // rewire after innerHTML change
+            removeBtn.classList.add("visible");
+          } catch (err) {
+            console.error("Photo processing failed:", err);
+          }
+        });
+      }
+
+      if (removeBtn) {
+        removeBtn.addEventListener("click", () => {
+          hiddenInput.value = "";
+          uploadBtn.innerHTML = '<span>📷</span><input type="file" accept="image/*" class="photo-file-input" />';
+          wirePhotoHandlers(row);
+          removeBtn.classList.remove("visible");
+        });
+      }
+    }
+
+    function createRow(id, isMin) {
+      const c = document.getElementById(id); if (!c) return;
+      if (c.querySelectorAll(".activity-row").length >= 15) return;
+      const r = document.createElement("div"); r.className = "activity-row";
+      r.innerHTML = makeRowHTML(isMin, "", "", "", "", "");
+      c.appendChild(r);
+      wirePhotoHandlers(r);
+    }
+
+    function removeLast(id) {
+      const c = document.getElementById(id); if (!c) return;
+      const rows = c.querySelectorAll(".activity-row");
+      if (rows.length <= 1) return;
+      c.removeChild(rows[rows.length - 1]);
+    }
+
+    function fill(id, tasks, isMin) {
+      const c = document.getElementById(id); if (!c || !tasks) return; c.innerHTML = "";
+      tasks.forEach(t => {
+        const r = document.createElement("div"); r.className = "activity-row";
+        r.innerHTML = makeRowHTML(isMin, t.label || "", isMin ? t.start : (t.start || ""), isMin ? t.end : (t.end || ""), t.icon || "", t.photo || "");
+        c.appendChild(r);
+        wirePhotoHandlers(r);
+      });
+    }
+
+    function collect(id, colors, isMin) {
+      const rows = document.querySelectorAll("#" + id + " .activity-row");
+      const tasks = []; let ci = 0;
+      rows.forEach(row => {
+        const labelInput = row.querySelector(".input-label");
+        const timeInputs = isMin ? row.querySelectorAll(".input-minutes") : row.querySelectorAll(".input-time");
+        const iconInput = row.querySelector(".input-icon");
+        const photoInput = row.querySelector(".photo-data");
+
+        const label = labelInput ? labelInput.value.trim() : "";
+        const start = isMin ? parseInt(timeInputs[0]?.value, 10) : timeInputs[0]?.value;
+        const end = isMin ? parseInt(timeInputs[1]?.value, 10) : timeInputs[1]?.value;
+        const icon = iconInput ? iconInput.value.trim() : "";
+        const photo = photoInput ? photoInput.value : "";
+
+        if (!label || (isMin ? isNaN(start) || isNaN(end) : !start || !end)) return;
+
+        const task = { label, start, end, color: colors[ci % colors.length], icon: icon || "\u2B24" };
+        if (photo && photo.startsWith("data:")) task.photo = photo;
+        ci++;
+        tasks.push(task);
+      });
+      return tasks;
+    }
+
+    // Default rows to show on first load
+    const DEFAULTS = {
+      "weekday-day-rows": [
+        {label:"Wake up",start:"07:00",end:"07:30",icon:"☀️"},{label:"Breakfast",start:"07:30",end:"08:00",icon:"🥞"},
+        {label:"School / Care",start:"08:00",end:"15:00",icon:"🏫"},{label:"Snack",start:"15:00",end:"15:30",icon:"🍎"},
+        {label:"Play time",start:"15:30",end:"17:15",icon:"🧸"},{label:"Mom home",start:"17:15",end:"17:45",icon:"👩‍👦"},
+        {label:"Dinner",start:"17:45",end:"18:30",icon:"🍽️"},{label:"Bath time",start:"18:30",end:"19:00",icon:"🫧"}
+      ],
+      "weekday-night-rows": [
+        {label:"Tv time",start:"19:00",end:"21:00",icon:"📺"},{label:"Games",start:"21:00",end:"22:00",icon:"🎮"}
+      ],
+      "weekend-day-rows": [
+        {label:"Wake up",start:"08:00",end:"08:30",icon:"⏰"},{label:"Breakfast",start:"08:30",end:"09:00",icon:"🥞"},
+        {label:"Free play / Outing",start:"09:00",end:"12:00",icon:"🧸"},{label:"Lunch",start:"12:00",end:"13:00",icon:"🥪"},
+        {label:"Afternoon play",start:"13:00",end:"17:00",icon:"🎨"},{label:"Dinner",start:"17:00",end:"18:00",icon:"🍽️"}
+      ],
+      "weekend-night-rows": [
+        {label:"Tv time",start:"19:00",end:"21:00",icon:"📺"},{label:"Games",start:"21:00",end:"22:00",icon:"🎮"}
+      ],
+      "focus-rows": [
+        {label:"Greeting",start:0,end:5,icon:"👋"},{label:"Table Work",start:5,end:20,icon:"📝"},
+        {label:"Sensory Break",start:20,end:30,icon:"🧸"},{label:"Table Work",start:30,end:45,icon:"📝"},
+        {label:"Free Choice",start:45,end:55,icon:"🎨"},{label:"Goodbye",start:55,end:60,icon:"👋"}
+      ]
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const sectionMap = [
+        ["add-weekday-day-row","remove-weekday-day-row","weekday-day-rows",false],
+        ["add-weekday-night-row","remove-weekday-night-row","weekday-night-rows",false],
+        ["add-weekend-day-row","remove-weekend-day-row","weekend-day-rows",false],
+        ["add-weekend-night-row","remove-weekend-night-row","weekend-night-rows",false],
+        ["add-focus-row","remove-focus-row","focus-rows",true]
+      ];
+
+      sectionMap.forEach(([a, r, c, m]) => {
+        document.getElementById(a)?.addEventListener("click", () => createRow(c, m));
+        document.getElementById(r)?.addEventListener("click", () => removeLast(c));
+      });
+
+      // Load saved or defaults
+      let loaded = false;
+      try {
+        const raw = localStorage.getItem("routineClockSchedule");
+        if (raw) {
+          const d = JSON.parse(raw);
+          if (d.palette) {
+            const r = document.querySelector('input[name="palette"][value="' + d.palette + '"]');
+            if (r) r.checked = true;
+          }
+          if (d.mon_fri) {
+            fill("weekday-day-rows", d.mon_fri.day, false);
+            fill("weekday-night-rows", d.mon_fri.night, false);
+          }
+          if (d.weekend) {
+            fill("weekend-day-rows", d.weekend.day, false);
+            fill("weekend-night-rows", d.weekend.night, false);
+          }
+          loaded = true;
+        }
+      } catch (e) { console.error(e); }
+
+      if (!loaded) {
+        fill("weekday-day-rows", DEFAULTS["weekday-day-rows"], false);
+        fill("weekday-night-rows", DEFAULTS["weekday-night-rows"], false);
+        fill("weekend-day-rows", DEFAULTS["weekend-day-rows"], false);
+        fill("weekend-night-rows", DEFAULTS["weekend-night-rows"], false);
+      }
+
+      // Load focus
+      let focusLoaded = false;
+      try {
+        const rf = localStorage.getItem("routineClockFocusSchedule");
+        if (rf) {
+          const fd = JSON.parse(rf);
+          const si = document.getElementById("focus-start-time");
+          if (si && fd.startTime) si.value = fd.startTime;
+          if (fd.tasks) { fill("focus-rows", fd.tasks, true); focusLoaded = true; }
+        }
+      } catch (e) { console.error(e); }
+
+      if (!focusLoaded) {
+        fill("focus-rows", DEFAULTS["focus-rows"], true);
+      }
+
+      // Save
+      document.getElementById("save-and-open")?.addEventListener("click", () => {
+        const status = document.getElementById("status"); if (status) status.textContent = "";
+        const pi = document.querySelector('input[name="palette"]:checked');
+        const pk = pi ? pi.value : "soft"; const colors = PALETTES[pk];
+        const wd = collect("weekday-day-rows", colors, false);
+        const wn = collect("weekday-night-rows", colors, false);
+        const ed = collect("weekend-day-rows", colors, false);
+        const en = collect("weekend-night-rows", colors, false);
+        if (wd.length === 0 && wn.length === 0 && ed.length === 0 && en.length === 0) {
+          if (status) status.textContent = "Please add at least one activity."; return;
+        }
+        try {
+          localStorage.setItem("routineClockSchedule", JSON.stringify({palette: pk, mon_fri: {day: wd, night: wn}, weekend: {day: ed, night: en}}));
+          const ft = document.getElementById("focus-start-time");
+          const fTasks = collect("focus-rows", colors, true);
+          localStorage.setItem("routineClockFocusSchedule", JSON.stringify({startTime: ft ? ft.value : "14:00", tasks: fTasks}));
+          if (status) status.textContent = "Saved! Opening clock...";
+          window.location.href = "./index.html";
+        } catch (e) {
+          console.error(e);
+          if (status) status.textContent = "Problem saving. Check local storage.";
+        }
+      });
+
+      // Clear
+      document.getElementById("clear-schedule")?.addEventListener("click", () => {
+        localStorage.removeItem("routineClockSchedule");
+        localStorage.removeItem("routineClockFocusSchedule");
+        const s = document.getElementById("status"); if (s) s.textContent = "Schedule cleared.";
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

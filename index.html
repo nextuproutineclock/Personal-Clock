@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>NextUp Routine Clock</title>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QKPMS6ZSTF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QKPMS6ZSTF');
+  </script>
+
+  <link rel="stylesheet" href="styles.css?v=12">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+
+  <!-- Apple PWA -->
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NextUp">
+</head>
+<body>
+  <div class="page-shell">
+
+    <header class="landing-header">
+      <h1>NextUp Routine Clock</h1>
+      <p>
+        A visual routine clock that helps kids see what they are doing now and what comes next,
+        using colors, icons, and simple voice prompts, with automatic day and night modes starting at 7am and 7pm. 
+      </p>
+      <p class="landing-sub">
+        Keep this page open on a tablet or phone. Tap <strong>Edit Schedule</strong> to customize
+        the daily routine for your child.
+      </p>
+    </header>
+
+    <!-- Clock face -->
+    <div class="clock-container">
+      <svg id="clock-svg" viewBox="0 0 200 200">
+        <g id="sectors"></g>
+
+        <!-- Outer circle -->
+        <circle cx="100" cy="100" r="98" fill="none" stroke="#333" stroke-width="3" />
+
+        <!-- Hour hand -->
+        <g id="hour-hand">
+          <line x1="100" y1="100" x2="100" y2="65"
+                stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round" />
+          <polygon points="100,48 94,65 106,65" fill="#1a1a1a" />
+        </g>
+
+        <!-- Minute hand -->
+        <line id="minute-hand" x1="100" y1="100" x2="100" y2="30"
+              stroke="#444" stroke-width="3" stroke-linecap="round" />
+
+        <!-- Second hand -->
+        <line id="second-hand" x1="100" y1="100" x2="100" y2="22"
+              stroke="#c0392b" stroke-width="1.5" stroke-linecap="round" />
+
+        <!-- Center dot -->
+        <circle cx="100" cy="100" r="3.5" fill="#1a1a1a" />
+      </svg>
+    </div>
+
+    <!-- Activity labels -->
+    <div id="current-activity">Loading...</div>
+
+    <!-- Mode toggle -->
+    <div class="mode-toggle">
+      <button id="mode-12hr" type="button" class="mode-btn mode-btn-active">12-Hour</button>
+      <button id="mode-1hr" type="button" class="mode-btn">1-Hour Focus</button>
+    </div>
+
+    <!-- Focus controls (hidden by default) -->
+    <div id="focus-controls" class="focus-controls" style="display:none;">
+      <button id="focus-start-stop" type="button" class="btn btn-start">Start Session</button>
+      <p id="focus-status" class="focus-status">Set up your 1-hour session in Edit Schedule.</p>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="button-group">
+      <button id="edit-schedule" type="button" class="btn btn-primary">Edit Schedule</button>
+      <button id="feedback-button" type="button" class="btn btn-secondary">Share Feedback</button>
+      <a href="./privacy.html" style="font-size:0.75rem;color:#888;text-decoration:none;margin-top:0.25rem;">Privacy Policy</a>
+    </div>
+
+  </div>
+
+  <!-- App logic -->
+  <script src="app.js?v=12"></script>
+
+  <!-- Button handlers -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("edit-schedule")?.addEventListener("click", () => {
+        window.location.href = "./setup.html";
+      });
+
+      document.getElementById("feedback-button")?.addEventListener("click", () => {
+        window.open("https://docs.google.com/forms/d/e/1FAIpQLSdBZ_mIHng_bV12cy0BpQKiRwdXhWgwqj-NNfIWHjNPHFuXQA/viewform?usp=publish-editor", "_blank");
+      });
+    });
+  </script>
+
+  <!-- Service worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(() => console.log("SW registered"))
+        .catch((err) => console.log("SW failed:", err));
+    }
+  </script>
+</body>
+</html>

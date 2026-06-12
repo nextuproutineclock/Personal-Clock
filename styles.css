@@ -1,0 +1,384 @@
+/* ========== RESET ========== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ========== PAGE LAYOUT ========== */
+body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  background: #f0f0ec;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: background 0.5s ease, color 0.5s ease;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page-shell {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ========== HEADER ========== */
+.landing-header {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.landing-header h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+}
+
+.landing-header p {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #555;
+  margin-bottom: 0.15rem;
+}
+
+.landing-header .landing-sub {
+  color: #777;
+  font-size: 0.8rem;
+}
+
+/* ========== CLOCK CONTAINER ========== */
+.clock-container {
+  width: 60vw;
+  max-width: 360px;
+  aspect-ratio: 1 / 1;
+  margin: 0.5rem auto 0;
+  position: relative;
+}
+
+#clock-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
+}
+
+/* ========== SVG STYLES ========== */
+svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+svg text {
+  -webkit-font-smoothing: antialiased;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
+}
+
+/* ========== DAY / NIGHT THEMES ========== */
+body.day-mode {
+  background: linear-gradient(135deg, #e8f4f8 0%, #d4e8f0 100%);
+}
+
+body.night-mode {
+  background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+  color: #ffffff;
+}
+
+body.night-mode h1 {
+  color: #ffffff;
+}
+
+body.night-mode p {
+  color: #dde7f5;
+}
+
+body.night-mode .landing-sub {
+  color: #b0bec5;
+}
+
+/* ========== CURRENT ACTIVITY HIGHLIGHT ========== */
+.current-activity {
+  opacity: 0.92 !important;
+  filter: brightness(1.1);
+}
+
+.current-icon {
+  animation: iconPulse 1.5s ease-in-out infinite !important;
+  transform-origin: center center;
+  transform-box: fill-box;
+}
+
+/* For SVG group elements (photo icons) */
+g.current-icon {
+  animation: iconPulse 1.5s ease-in-out infinite !important;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
+}
+
+/* ========== TRANSITION WARNING ========== */
+body.transition-warning .clock-container {
+  animation: pulse 0.5s ease-in-out 3;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* ========== ACTIVITY LABELS ========== */
+#current-activity {
+  position: relative;
+  margin-top: 0.6rem;
+  text-align: center;
+  width: 100%;
+}
+
+.now-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a2a3a;
+  margin-bottom: 0.2rem;
+  letter-spacing: -0.01em;
+}
+
+.next-label {
+  font-size: 0.9rem;
+  color: #6b7c8a;
+  font-weight: 500;
+}
+
+body.night-mode .now-label {
+  color: #f0f4f8;
+}
+
+body.night-mode .next-label {
+  color: #8ea4b8;
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: #2c3e50;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.2);
+}
+
+.btn-primary:active {
+  background: #1a2a38;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #2c3e50;
+  border: 1.5px solid #d1d5db;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.btn-secondary:active {
+  background: #f5f5f5;
+}
+
+.btn-start {
+  background: #16a34a;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+}
+
+.btn-start:active {
+  background: #15803d;
+}
+
+.btn-stop {
+  background: #dc2626;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
+
+.btn-stop:active {
+  background: #b91c1c;
+}
+
+body.night-mode .btn-secondary {
+  background: #263545;
+  color: #d0dae4;
+  border-color: #3a4f5f;
+}
+
+body.night-mode .btn-primary {
+  background: #3b5068;
+  color: #f0f4f8;
+}
+
+/* ========== MODE TOGGLE ========== */
+.mode-toggle {
+  display: flex;
+  margin-top: 1rem;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid #d1d5db;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  max-width: 280px;
+}
+
+.mode-toggle .mode-btn {
+  flex: 1;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fff;
+  color: #6b7280;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mode-toggle .mode-btn-active {
+  background: #2c3e50;
+  color: #fff;
+}
+
+body.night-mode .mode-toggle {
+  border-color: #3a4f5f;
+}
+
+body.night-mode .mode-toggle .mode-btn {
+  background: #1e2d3a;
+  color: #8899a6;
+}
+
+body.night-mode .mode-toggle .mode-btn-active {
+  background: #3b5068;
+  color: #f0f4f8;
+}
+
+/* ========== FOCUS CONTROLS ========== */
+.focus-controls {
+  margin-top: 0.75rem;
+  text-align: center;
+  width: 100%;
+}
+
+.focus-status {
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  color: #888;
+}
+
+/* ========== BUTTON GROUP (edit + feedback) ========== */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+  width: 100%;
+  max-width: 280px;
+}
+
+.button-group .btn {
+  width: 100%;
+}
+
+/* ========== SMOOTH TRANSITIONS ========== */
+svg path,
+svg text {
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+/* ========== MOBILE RESPONSIVE ========== */
+@media (max-width: 600px) {
+  .page-shell {
+    padding: 0.75rem 0.6rem 1.5rem;
+  }
+
+  .landing-header {
+    margin-bottom: 0.25rem;
+  }
+
+  .landing-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .landing-header p,
+  .landing-header .landing-sub {
+    font-size: 0.78rem;
+  }
+
+  .clock-container {
+    width: 82vw;
+    max-width: 82vw;
+    margin-top: 0.25rem;
+  }
+
+  .now-label {
+    font-size: 1.05rem;
+  }
+
+  .next-label {
+    font-size: 0.82rem;
+  }
+
+  .mode-toggle {
+    margin-top: 0.75rem;
+  }
+
+  .button-group {
+    margin-top: 1rem;
+    max-width: 240px;
+  }
+
+  .btn {
+    padding: 0.55rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .landing-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .clock-container {
+    width: 88vw;
+    max-width: 88vw;
+  }
+}
