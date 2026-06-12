@@ -136,8 +136,8 @@
     </div>
   </div>
 
-  <script>
-    const PALETTES={soft:["#fde68a","#bfdbfe","#bbf7d0","#fecaca","#e9d5ff","#fee2e2"],bold:["#f97316","#22c55e","#3b82f6","#e11d48","#a855f7","#0ea5e9"],calm:["#a5b4fc","#7dd3fc","#6ee7b7","#fde68a","#f9a8d4","#c4b5fd"],neutrals:["#f5f5dc","#f4e1c1","#e8c39e","#d2a679","#b58863","#8b5a2b"],highcontrast:["#FFD700","#0000FF","#FF0000","#00CC00","#FF6600","#FFFFFF"],earth:["#8B9D6B","#C17A4A","#D4A57B","#6B7F5E","#A0522D","#C9B98E"],ocean:["#0891B2","#06B6D4","#5EEAD4","#155E75","#A5F3FC","#2DD4BF"],sunset:["#F97316","#FB923C","#F472B6","#E11D48","#FBBF24","#FDA4AF"]};
+  <script src="supabase-sync.js"></script>
+  <script>soft:["#fde68a","#bfdbfe","#bbf7d0","#fecaca","#e9d5ff","#fee2e2"],bold:["#f97316","#22c55e","#3b82f6","#e11d48","#a855f7","#0ea5e9"],calm:["#a5b4fc","#7dd3fc","#6ee7b7","#fde68a","#f9a8d4","#c4b5fd"],neutrals:["#f5f5dc","#f4e1c1","#e8c39e","#d2a679","#b58863","#8b5a2b"],highcontrast:["#FFD700","#0000FF","#FF0000","#00CC00","#FF6600","#FFFFFF"],earth:["#8B9D6B","#C17A4A","#D4A57B","#6B7F5E","#A0522D","#C9B98E"],ocean:["#0891B2","#06B6D4","#5EEAD4","#155E75","#A5F3FC","#2DD4BF"],sunset:["#F97316","#FB923C","#F472B6","#E11D48","#FBBF24","#FDA4AF"]};
 
     // Resize an image file to a small circular base64 PNG (60x60)
     function processPhoto(file) {
@@ -373,7 +373,7 @@
       }
 
       // Save
-      document.getElementById("save-and-open")?.addEventListener("click", () => {
+      document.getElementById("save-and-open")?.addEventListener("click", async () => {
         const status = document.getElementById("status"); if (status) status.textContent = "";
         const pi = document.querySelector('input[name="palette"]:checked');
         const pk = pi ? pi.value : "soft"; const colors = PALETTES[pk];
@@ -385,10 +385,15 @@
           if (status) status.textContent = "Please add at least one activity."; return;
         }
         try {
-          localStorage.setItem("routineClockSchedule", JSON.stringify({palette: pk, mon_fri: {day: wd, night: wn}, weekend: {day: ed, night: en}}));
+          const schedulePayload = {palette: pk, mon_fri: {day: wd, night: wn}, weekend: {day: ed, night: en}};
           const ft = document.getElementById("focus-start-time");
           const fTasks = collect("focus-rows", colors, true);
-          localStorage.setItem("routineClockFocusSchedule", JSON.stringify({startTime: ft ? ft.value : "14:00", tasks: fTasks}));
+          const focusPayload = {startTime: ft ? ft.value : "14:00", tasks: fTasks};
+          localStorage.setItem("routineClockSchedule", JSON.stringify(schedulePayload));
+          localStorage.setItem("routineClockFocusSchedule", JSON.stringify(focusPayload));
+          if (typeof saveScheduleToCloud === "function") {
+            saveScheduleToCloud(schedulePayload, focusPayload);
+          }
           if (status) status.textContent = "Saved! Opening clock...";
           window.location.href = "./index.html";
         } catch (e) {
@@ -407,9 +412,6 @@
   </script>
 </body>
 </html>
-
-
-
 
 
 
