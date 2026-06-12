@@ -39,8 +39,6 @@
     .input-minutes{width:3.5rem;text-align:center}
     .row-field{display:flex;flex-direction:column;gap:0.15rem}
     .row-field .field-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;color:#999;font-weight:600}
-
-    /* Icon + photo upload field */
     .icon-photo-field{display:flex;flex-direction:column;gap:0.15rem}
     .icon-photo-field .field-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;color:#999;font-weight:600}
     .icon-photo-wrap{display:flex;align-items:center;gap:0.3rem}
@@ -51,7 +49,6 @@
     .photo-upload-btn input[type="file"]{display:none}
     .photo-remove-btn{width:16px;height:16px;border-radius:50%;border:none;background:#ef4444;color:#fff;font-size:0.6rem;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;padding:0;line-height:1}
     .photo-remove-btn.visible{display:flex}
-
     .row-actions{display:flex;gap:0.5rem;margin-top:0.6rem}
     .btn-sm{padding:0.45rem 0.85rem;font-size:0.82rem;font-weight:600;border-radius:6px;border:none;cursor:pointer;transition:all 0.15s ease}
     .btn-sm:active{transform:scale(0.97)}
@@ -129,7 +126,7 @@
 
     <div class="section save-section">
       <h2>Save</h2>
-      <p class="hint">Saves to this device only. Set up each device separately.</p>
+      <p class="hint">Saves to this device and syncs to cloud.</p>
       <button class="btn-save" id="save-and-open">Save &amp; View Clock</button>
       <button class="btn-clear" id="clear-schedule" type="button">Clear saved schedule</button>
       <p id="status" class="status-msg"></p>
@@ -137,9 +134,18 @@
   </div>
 
   <script src="supabase-sync.js"></script>
-  <script>soft:["#fde68a","#bfdbfe","#bbf7d0","#fecaca","#e9d5ff","#fee2e2"],bold:["#f97316","#22c55e","#3b82f6","#e11d48","#a855f7","#0ea5e9"],calm:["#a5b4fc","#7dd3fc","#6ee7b7","#fde68a","#f9a8d4","#c4b5fd"],neutrals:["#f5f5dc","#f4e1c1","#e8c39e","#d2a679","#b58863","#8b5a2b"],highcontrast:["#FFD700","#0000FF","#FF0000","#00CC00","#FF6600","#FFFFFF"],earth:["#8B9D6B","#C17A4A","#D4A57B","#6B7F5E","#A0522D","#C9B98E"],ocean:["#0891B2","#06B6D4","#5EEAD4","#155E75","#A5F3FC","#2DD4BF"],sunset:["#F97316","#FB923C","#F472B6","#E11D48","#FBBF24","#FDA4AF"]};
+  <script>
+    const PALETTES = {
+      soft:["#fde68a","#bfdbfe","#bbf7d0","#fecaca","#e9d5ff","#fee2e2"],
+      bold:["#f97316","#22c55e","#3b82f6","#e11d48","#a855f7","#0ea5e9"],
+      calm:["#a5b4fc","#7dd3fc","#6ee7b7","#fde68a","#f9a8d4","#c4b5fd"],
+      neutrals:["#f5f5dc","#f4e1c1","#e8c39e","#d2a679","#b58863","#8b5a2b"],
+      highcontrast:["#FFD700","#0000FF","#FF0000","#00CC00","#FF6600","#FFFFFF"],
+      earth:["#8B9D6B","#C17A4A","#D4A57B","#6B7F5E","#A0522D","#C9B98E"],
+      ocean:["#0891B2","#06B6D4","#5EEAD4","#155E75","#A5F3FC","#2DD4BF"],
+      sunset:["#F97316","#FB923C","#F472B6","#E11D48","#FBBF24","#FDA4AF"]
+    };
 
-    // Resize an image file to a small circular base64 PNG (60x60)
     function processPhoto(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -151,18 +157,13 @@
             canvas.width = size;
             canvas.height = size;
             const ctx = canvas.getContext("2d");
-
-            // Crop to square (center crop)
             const min = Math.min(img.width, img.height);
             const sx = (img.width - min) / 2;
             const sy = (img.height - min) / 2;
-
-            // Draw circular clip
             ctx.beginPath();
             ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
             ctx.closePath();
             ctx.clip();
-
             ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
             resolve(canvas.toDataURL("image/png", 0.8));
           };
@@ -209,7 +210,6 @@
       const uploadBtn = row.querySelector(".photo-upload-btn");
       const removeBtn = row.querySelector(".photo-remove-btn");
       const hiddenInput = row.querySelector(".photo-data");
-
       if (fileInput) {
         fileInput.addEventListener("change", async (e) => {
           const file = e.target.files[0];
@@ -218,14 +218,13 @@
             const dataUrl = await processPhoto(file);
             hiddenInput.value = dataUrl;
             uploadBtn.innerHTML = '<img src="' + dataUrl + '" /><input type="file" accept="image/*" class="photo-file-input" />';
-            wirePhotoHandlers(row); // rewire after innerHTML change
+            wirePhotoHandlers(row);
             removeBtn.classList.add("visible");
           } catch (err) {
             console.error("Photo processing failed:", err);
           }
         });
       }
-
       if (removeBtn) {
         removeBtn.addEventListener("click", () => {
           hiddenInput.value = "";
@@ -270,15 +269,12 @@
         const timeInputs = isMin ? row.querySelectorAll(".input-minutes") : row.querySelectorAll(".input-time");
         const iconInput = row.querySelector(".input-icon");
         const photoInput = row.querySelector(".photo-data");
-
         const label = labelInput ? labelInput.value.trim() : "";
         const start = isMin ? parseInt(timeInputs[0]?.value, 10) : timeInputs[0]?.value;
         const end = isMin ? parseInt(timeInputs[1]?.value, 10) : timeInputs[1]?.value;
         const icon = iconInput ? iconInput.value.trim() : "";
         const photo = photoInput ? photoInput.value : "";
-
         if (!label || (isMin ? isNaN(start) || isNaN(end) : !start || !end)) return;
-
         const task = { label, start, end, color: colors[ci % colors.length], icon: icon || "\u2B24" };
         if (photo && photo.startsWith("data:")) task.photo = photo;
         ci++;
@@ -287,7 +283,6 @@
       return tasks;
     }
 
-    // Default rows to show on first load
     const DEFAULTS = {
       "weekday-day-rows": [
         {label:"Wake up",start:"07:00",end:"07:30",icon:"☀️"},{label:"Breakfast",start:"07:30",end:"08:00",icon:"🥞"},
@@ -412,9 +407,6 @@
   </script>
 </body>
 </html>
-
-
-
 
 
 
