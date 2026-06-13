@@ -1,15 +1,13 @@
-const SUPABASE_URL = "https://frrosrbcmulvpsayjjxc.supabase.co";
-const SUPABASE_KEY = "sb_publishable_rcTy7Eh2_Gidw-n_JVoHXQ_0DVTNnEV";
+const SUPABASE_URL = "https://sdkihobprbgbkrqgurqh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XHvk0yy9qfuVSfRhwPh-aA_zPNRULww";
 const TABLE = "nextup_schedules";
 const SHARED_DEVICE_ID = "nextup_family_schedule";
-
 const _h = {
   "Content-Type": "application/json",
   "apikey": SUPABASE_KEY,
   "Authorization": "Bearer " + SUPABASE_KEY,
   "Prefer": "return=representation"
 };
-
 async function saveScheduleToCloud(schedule, focus) {
   const body = JSON.stringify({ device_id: SHARED_DEVICE_ID, schedule: JSON.stringify(schedule), focus_schedule: JSON.stringify(focus), updated_at: new Date().toISOString() });
   const check = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?device_id=eq.${SHARED_DEVICE_ID}`, { headers: _h });
@@ -19,7 +17,6 @@ async function saveScheduleToCloud(schedule, focus) {
   const res = await fetch(url, { method, headers: _h, body });
   return { ok: res.ok };
 }
-
 async function loadScheduleFromCloud() {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?device_id=eq.${SHARED_DEVICE_ID}&select=*`, { headers: _h });
   const data = await res.json();
@@ -29,15 +26,12 @@ async function loadScheduleFromCloud() {
     focusSchedule: data[0].focus_schedule ? JSON.parse(data[0].focus_schedule) : null
   };
 }
-
 function startRealtimeSync(onUpdate) {
   const wsUrl = SUPABASE_URL.replace("https://", "wss://") + "/realtime/v1/websocket?apikey=" + SUPABASE_KEY + "&vsn=1.0.0";
   let ws;
   let heartbeat;
-
   function connect() {
     ws = new WebSocket(wsUrl);
-
     ws.onopen = () => {
       console.log("[Sync] Realtime connected");
       ws.send(JSON.stringify({ topic: "realtime:public:nextup_schedules", event: "phx_join", payload: {}, ref: "1" }));
@@ -45,7 +39,6 @@ function startRealtimeSync(onUpdate) {
         ws.send(JSON.stringify({ topic: "phoenix", event: "heartbeat", payload: {}, ref: "hb" }));
       }, 25000);
     };
-
     ws.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data);
@@ -55,15 +48,12 @@ function startRealtimeSync(onUpdate) {
         }
       } catch (err) {}
     };
-
     ws.onclose = () => {
       console.log("[Sync] Disconnected, reconnecting in 5s...");
       clearInterval(heartbeat);
       setTimeout(connect, 5000);
     };
-
     ws.onerror = () => { ws.close(); };
   }
-
   connect();
 }
