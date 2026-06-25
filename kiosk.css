@@ -36,24 +36,17 @@ body.kiosk-mode {
    never reach the very edge (the round glass bezel crops the edge of the
    square anyway, so we keep content inside an inscribed circle) */
 .kiosk-shell .clock-container {
-  width: 78vmin;
-  max-width: 78vmin;
+  width: 88vmin;
+  max-width: 88vmin;
   margin: 0;
 }
 
-/* Activity text, scaled up for a wall-mounted display viewed from a few feet
-   away rather than held in the hand like a phone */
+/* Activity text is hidden on the kiosk display — clock face only.
+   app.js still writes into #current-activity every second, it's just
+   not shown on screen. Voice announcements (speak()) are unaffected,
+   since those don't depend on this element being visible. */
 .kiosk-shell #current-activity {
-  margin-top: 0;
-}
-
-.kiosk-shell .now-label {
-  font-size: 4.2vmin;
-  line-height: 1.15;
-}
-
-.kiosk-shell .next-label {
-  font-size: 2.8vmin;
+  display: none;
 }
 
 /* Disable text selection / long-press callouts on a touchscreen kiosk */
