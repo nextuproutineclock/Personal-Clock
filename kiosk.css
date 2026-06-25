@@ -36,8 +36,8 @@ body.kiosk-mode {
    never reach the very edge (the round glass bezel crops the edge of the
    square anyway, so we keep content inside an inscribed circle) */
 .kiosk-shell .clock-container {
-  width: 88vmin;
-  max-width: 88vmin;
+  width: 100vmin;
+  max-width: 100vmin;
   margin: 0;
 }
 
