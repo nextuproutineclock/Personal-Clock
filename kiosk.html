@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>NextUp Kiosk Clock</title>
+
+  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="kiosk.css?v=1">
+
+  <!-- PWA (optional on the Pi, harmless to keep) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+</head>
+<body class="kiosk-mode">
+  <div class="kiosk-shell">
+
+    <!-- Clock face (identical markup/IDs to index.html — app.js needs these exact IDs) -->
+    <div class="clock-container">
+      <svg id="clock-svg" viewBox="0 0 200 200">
+        <g id="sectors"></g>
+
+        <!-- Outer circle -->
+        <circle cx="100" cy="100" r="98" fill="none" stroke="#333" stroke-width="3" />
+
+        <!-- Hour hand -->
+        <g id="hour-hand">
+          <line x1="100" y1="100" x2="100" y2="65"
+                stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round" />
+          <polygon points="100,48 94,65 106,65" fill="#1a1a1a" />
+        </g>
+
+        <!-- Minute hand -->
+        <line id="minute-hand" x1="100" y1="100" x2="100" y2="30"
+              stroke="#444" stroke-width="3" stroke-linecap="round" />
+
+        <!-- Second hand -->
+        <line id="second-hand" x1="100" y1="100" x2="100" y2="22"
+              stroke="#c0392b" stroke-width="1.5" stroke-linecap="round" />
+
+        <!-- Center dot -->
+        <circle cx="100" cy="100" r="3.5" fill="#1a1a1a" />
+      </svg>
+    </div>
+
+    <!-- Activity labels -->
+    <div id="current-activity">Loading...</div>
+
+    <!--
+      NOTE: The buttons below (mode toggle, focus controls, edit/feedback/privacy)
+      from index.html are intentionally left OUT of this page.
+      app.js looks them up with getElementById/optional-chaining and already
+      handles them being missing, so nothing in app.js needs to change.
+    -->
+
+  </div>
+
+  <!-- App logic — identical includes to index.html -->
+  <script src="supabase-sync.js"></script>
+  <script src="app.js?v=12"></script>
+
+  <!-- Cloud sync on load + realtime (same as index.html, minus the button handlers) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const cloud = await loadScheduleFromCloud();
+        if (cloud) {
+          if (cloud.schedule) { localStorage.setItem("routineClockSchedule", JSON.stringify(cloud.schedule)); scheduleData = cloud.schedule; }
+          if (cloud.focusSchedule) { localStorage.setItem("routineClockFocusSchedule", JSON.stringify(cloud.focusSchedule)); focusScheduleData = cloud.focusSchedule; }
+        }
+      } catch (e) { console.warn("[Sync] load failed:", e); }
+
+      startRealtimeSync(async () => {
+        try {
+          const cloud = await loadScheduleFromCloud();
+          if (cloud) {
+            if (cloud.schedule) { localStorage.setItem("routineClockSchedule", JSON.stringify(cloud.schedule)); scheduleData = cloud.schedule; }
+            if (cloud.focusSchedule) { localStorage.setItem("routineClockFocusSchedule", JSON.stringify(cloud.focusSchedule)); focusScheduleData = cloud.focusSchedule; }
+            currentMode = "";
+            currentActivityIndex = -1;
+          }
+        } catch (e) { console.warn("[Sync] realtime failed:", e); }
+      });
+    });
+  </script>
+
+  <!-- Service worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(() => console.log("SW registered"))
+        .catch((err) => console.log("SW failed:", err));
+    }
+  </script>
+</body>
+</html>

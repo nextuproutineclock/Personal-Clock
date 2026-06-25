@@ -1,0 +1,64 @@
+/* ============================================================
+   kiosk.css — overrides for the round-screen kiosk view ONLY.
+   Loaded AFTER styles.css, so these rules win.
+   styles.css is untouched — index.html on phones/tablets is unaffected.
+   ============================================================ */
+
+/* Fill the whole physical screen, no scrollbars, no page chrome */
+html, body.kiosk-mode {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+body.kiosk-mode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The shell centers everything inside the visible circle */
+.kiosk-shell {
+  width: 100vmin;   /* 100vmin = the smaller of viewport width/height,
+                        which keeps this a perfect square on a square panel */
+  height: 100vmin;
+  max-width: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2vmin;
+}
+
+/* Clock face: sized as a % of the square shell, with margin so hands/icons
+   never reach the very edge (the round glass bezel crops the edge of the
+   square anyway, so we keep content inside an inscribed circle) */
+.kiosk-shell .clock-container {
+  width: 78vmin;
+  max-width: 78vmin;
+  margin: 0;
+}
+
+/* Activity text, scaled up for a wall-mounted display viewed from a few feet
+   away rather than held in the hand like a phone */
+.kiosk-shell #current-activity {
+  margin-top: 0;
+}
+
+.kiosk-shell .now-label {
+  font-size: 4.2vmin;
+  line-height: 1.15;
+}
+
+.kiosk-shell .next-label {
+  font-size: 2.8vmin;
+}
+
+/* Disable text selection / long-press callouts on a touchscreen kiosk */
+body.kiosk-mode {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
