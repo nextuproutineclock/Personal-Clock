@@ -63,9 +63,11 @@
     .save-section{text-align:center}
     .btn-save{display:block;width:100%;padding:0.75rem;font-size:1rem;font-weight:700;border-radius:10px;border:none;cursor:pointer;background:#2c3e50;color:#fff;box-shadow:0 2px 8px rgba(44,62,80,0.2);transition:all 0.15s ease;margin-bottom:0.6rem}
     .btn-save:active{background:#1a2a38;transform:scale(0.98)}
+    .btn-save:disabled{opacity:0.6;cursor:default;transform:none}
     .btn-clear{display:block;width:100%;padding:0.6rem;font-size:0.88rem;font-weight:600;border-radius:8px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#555;transition:all 0.15s ease}
     .btn-clear:active{background:#f5f5f5}
     .status-msg{font-size:0.82rem;color:#16a34a;margin-top:0.5rem;min-height:1.2em}
+    .status-msg.is-error{color:#dc2626}
     @media(max-width:560px){
       .setup-shell{padding:1rem 0.75rem 2.5rem}
       .setup-header h1{font-size:1.25rem}
@@ -369,7 +371,9 @@
 
       // Save
       document.getElementById("save-and-open")?.addEventListener("click", async () => {
-        const status = document.getElementById("status"); if (status) status.textContent = "";
+        const status = document.getElementById("status"); if (status) { status.textContent = ""; status.classList.remove("is-error"); }
+        const saveBtn = document.getElementById("save-and-open");
+
         const pi = document.querySelector('input[name="palette"]:checked');
         const pk = pi ? pi.value : "soft"; const colors = PALETTES[pk];
         const wd = collect("weekday-day-rows", colors, false);
@@ -379,21 +383,41 @@
         if (wd.length === 0 && wn.length === 0 && ed.length === 0 && en.length === 0) {
           if (status) status.textContent = "Please add at least one activity."; return;
         }
+
+        // Disable the button + show progress so a slow/missing network connection
+        // is visible to the parent instead of looking like nothing happened.
+        if (saveBtn) saveBtn.disabled = true;
+        if (status) status.textContent = "Saving...";
+
         try {
           const schedulePayload = {palette: pk, mon_fri: {day: wd, night: wn}, weekend: {day: ed, night: en}};
           const ft = document.getElementById("focus-start-time");
           const fTasks = collect("focus-rows", colors, true);
           const focusPayload = {startTime: ft ? ft.value : "14:00", tasks: fTasks};
+
+          // Local save first — this always succeeds and protects the parent's
+          // work even if the network/cloud step below fails.
           localStorage.setItem("routineClockSchedule", JSON.stringify(schedulePayload));
           localStorage.setItem("routineClockFocusSchedule", JSON.stringify(focusPayload));
+
+          // THE FIX: await the cloud save so the page doesn't navigate away
+          // (and cancel the in-flight network request) before it finishes.
           if (typeof saveScheduleToCloud === "function") {
-            saveScheduleToCloud(schedulePayload, focusPayload);
+            try {
+              await saveScheduleToCloud(schedulePayload, focusPayload);
+            } catch (cloudErr) {
+              console.warn("[Sync] cloud save failed:", cloudErr);
+              // Don't block the parent — local save already succeeded.
+              // They'll just need a working connection next time to sync.
+            }
           }
+
           if (status) status.textContent = "Saved! Opening clock...";
           window.location.href = "./index.html";
         } catch (e) {
           console.error(e);
-          if (status) status.textContent = "Problem saving. Check local storage.";
+          if (status) { status.textContent = "Problem saving. Check local storage."; status.classList.add("is-error"); }
+          if (saveBtn) saveBtn.disabled = false;
         }
       });
 
@@ -407,8 +431,6 @@
   </script>
 </body>
 </html>
-
-
 
 
 
