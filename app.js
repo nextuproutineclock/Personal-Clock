@@ -93,10 +93,17 @@ const activityLabel = document.getElementById("current-activity");
 
 // ---------- VOICE ----------
 
+// Use Piper TTS via local speech server instead of browser speechSynthesis
+// The speech server must be running on the Pi: python3 ~/speech-server.py
+
+const SPEECH_SERVER = "http://localhost:59125/speak";
+const USE_PIPER = true; // set to false to fall back to browser speechSynthesis
+
 let selectedVoice = null;
 let voicesLoaded = false;
 
 function loadVoices() {
+  if (USE_PIPER) return; // not needed when using Piper
   const voices = window.speechSynthesis.getVoices();
   if (voices.length > 0) {
     voicesLoaded = true;
@@ -116,10 +123,19 @@ function loadVoices() {
   }
 }
 
-window.speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
+if (!USE_PIPER) {
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+}
 
 function speak(text) {
+  if (USE_PIPER) {
+    // Send text to local Piper speech server
+    fetch(SPEECH_SERVER + "?text=" + encodeURIComponent(text))
+      .catch(err => console.warn("[Speech] Piper server not reachable:", err));
+    return;
+  }
+  // Fallback: browser speechSynthesis
   if (!("speechSynthesis" in window)) return;
   if (!voicesLoaded) loadVoices();
   const utterance = new SpeechSynthesisUtterance(text);
