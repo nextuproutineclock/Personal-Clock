@@ -62,9 +62,11 @@
   <!-- Cloud sync on load + realtime (same as index.html, minus the button handlers) -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
+      // If the last save did not reach the cloud, local edits are newer than the
+      // cloud copy. Do not let the stale cloud copy overwrite them.
       try {
         const cloud = await loadScheduleFromCloud();
-        if (cloud) {
+        if (cloud && !localStorage.getItem("routineClockCloudPending")) {
           if (cloud.schedule) { localStorage.setItem("routineClockSchedule", JSON.stringify(cloud.schedule)); scheduleData = cloud.schedule; }
           if (cloud.focusSchedule) { localStorage.setItem("routineClockFocusSchedule", JSON.stringify(cloud.focusSchedule)); focusScheduleData = cloud.focusSchedule; }
         }
@@ -73,7 +75,7 @@
       startRealtimeSync(async () => {
         try {
           const cloud = await loadScheduleFromCloud();
-          if (cloud) {
+          if (cloud && !localStorage.getItem("routineClockCloudPending")) {
             if (cloud.schedule) { localStorage.setItem("routineClockSchedule", JSON.stringify(cloud.schedule)); scheduleData = cloud.schedule; }
             if (cloud.focusSchedule) { localStorage.setItem("routineClockFocusSchedule", JSON.stringify(cloud.focusSchedule)); focusScheduleData = cloud.focusSchedule; }
             currentMode = "";
