@@ -8,15 +8,47 @@ const _h = {
   "Authorization": "Bearer " + SUPABASE_KEY,
   "Prefer": "return=representation"
 };
+
+// Saves both schedules. Returns { ok: true } only if Supabase confirmed the write.
+// On failure returns { ok: false, error: "..." } so the caller can tell the parent.
 async function saveScheduleToCloud(schedule, focus) {
-  const body = JSON.stringify({ device_id: SHARED_DEVICE_ID, schedule: JSON.stringify(schedule), focus_schedule: JSON.stringify(focus), updated_at: new Date().toISOString() });
-  const check = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?device_id=eq.${SHARED_DEVICE_ID}`, { headers: _h });
-  const existing = await check.json();
-  const method = existing.length > 0 ? "PATCH" : "POST";
-  const url = existing.length > 0 ? `${SUPABASE_URL}/rest/v1/${TABLE}?device_id=eq.${SHARED_DEVICE_ID}` : `${SUPABASE_URL}/rest/v1/${TABLE}`;
-  const res = await fetch(url, { method, headers: _h, body });
-  return { ok: res.ok };
+  const row = {
+    schedule: JSON.stringify(schedule),
+    focus_schedule: JSON.stringify(focus),
+    updated_at: new Date().toISOString()
+  };
+  const rowUrl = `${SUPABASE_URL}/rest/v1/${TABLE}?device_id=eq.${SHARED_DEVICE_ID}`;
+
+  // 1) Try to update the existing row.
+  let res = await fetch(rowUrl, { method: "PATCH", headers: _h, body: JSON.stringify(row) });
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("[Sync] PATCH failed:", res.status, text);
+    return { ok: false, error: "PATCH " + res.status + " " + text };
+  }
+  const updated = await res.json();
+  if (Array.isArray(updated) && updated.length > 0) {
+    console.log("[Sync] Cloud save confirmed (updated)");
+    return { ok: true };
+  }
+
+  // 2) PATCH matched no rows. Either the row doesn't exist yet, or a row-level
+  //    security policy is blocking updates. Try inserting; a duplicate-key error
+  //    here means RLS is hiding the existing row from updates.
+  res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
+    method: "POST",
+    headers: _h,
+    body: JSON.stringify({ device_id: SHARED_DEVICE_ID, ...row })
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("[Sync] POST failed:", res.status, text);
+    return { ok: false, error: "POST " + res.status + " " + text };
+  }
+  console.log("[Sync] Cloud save confirmed (inserted)");
+  return { ok: true };
 }
+
 async function loadScheduleFromCloud() {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?device_id=eq.${SHARED_DEVICE_ID}&select=*`, { headers: _h });
   const data = await res.json();
@@ -26,6 +58,7 @@ async function loadScheduleFromCloud() {
     focusSchedule: data[0].focus_schedule ? JSON.parse(data[0].focus_schedule) : null
   };
 }
+
 function startRealtimeSync(onUpdate) {
   const wsUrl = SUPABASE_URL.replace("https://", "wss://") + "/realtime/v1/websocket?apikey=" + SUPABASE_KEY + "&vsn=1.0.0";
   let ws;
@@ -36,7 +69,9 @@ function startRealtimeSync(onUpdate) {
       console.log("[Sync] Realtime connected");
       ws.send(JSON.stringify({ topic: "realtime:public:nextup_schedules", event: "phx_join", payload: {}, ref: "1" }));
       heartbeat = setInterval(() => {
-        ws.send(JSON.stringify({ topic: "phoenix", event: "heartbeat", payload: {}, ref: "hb" }));
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ topic: "phoenix", event: "heartbeat", payload: {}, ref: "hb" }));
+        }
       }, 25000);
     };
     ws.onmessage = (e) => {
@@ -55,5 +90,7 @@ function startRealtimeSync(onUpdate) {
     };
     ws.onerror = () => { ws.close(); };
   }
+  connect();
+}
   connect();
 }
