@@ -107,9 +107,12 @@
       document.getElementById("feedback-button")?.addEventListener("click", () => {
         window.open("https://docs.google.com/forms/d/e/1FAIpQLSdBZ_mIHng_bV12cy0BpQKiRwdXhWgwqj-NNfIWHjNPHFuXQA/viewform?usp=publish-editor", "_blank");
       });
+
+      // If the last save did not reach the cloud, local edits are newer than the
+      // cloud copy. Do not let the stale cloud copy overwrite them.
       try {
         const cloud = await loadScheduleFromCloud();
-        if (cloud) {
+        if (cloud && !localStorage.getItem("routineClockCloudPending")) {
           if (cloud.schedule) { localStorage.setItem("routineClockSchedule", JSON.stringify(cloud.schedule)); scheduleData = cloud.schedule; }
           if (cloud.focusSchedule) { localStorage.setItem("routineClockFocusSchedule", JSON.stringify(cloud.focusSchedule)); focusScheduleData = cloud.focusSchedule; }
         }
@@ -118,7 +121,7 @@
       startRealtimeSync(async () => {
         try {
           const cloud = await loadScheduleFromCloud();
-          if (cloud) {
+          if (cloud && !localStorage.getItem("routineClockCloudPending")) {
             if (cloud.schedule) { localStorage.setItem("routineClockSchedule", JSON.stringify(cloud.schedule)); scheduleData = cloud.schedule; }
             if (cloud.focusSchedule) { localStorage.setItem("routineClockFocusSchedule", JSON.stringify(cloud.focusSchedule)); focusScheduleData = cloud.focusSchedule; }
             currentMode = "";
@@ -137,5 +140,7 @@
         .catch((err) => console.log("SW failed:", err));
     }
   </script>
+</body>
+</html>
 </body>
 </html>
