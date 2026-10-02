@@ -395,23 +395,41 @@
           const fTasks = collect("focus-rows", colors, true);
           const focusPayload = {startTime: ft ? ft.value : "14:00", tasks: fTasks};
 
-          // Local save first — this always succeeds and protects the parent's
-          // work even if the network/cloud step below fails.
+          // Local save first. This always succeeds and protects the parent's
+          // work even if the cloud step below fails.
           localStorage.setItem("routineClockSchedule", JSON.stringify(schedulePayload));
           localStorage.setItem("routineClockFocusSchedule", JSON.stringify(focusPayload));
 
-          // THE FIX: await the cloud save so the page doesn't navigate away
-          // (and cancel the in-flight network request) before it finishes.
+          // Await the cloud save AND check the result. The sync helper returns
+          // {ok:false} on a failed write instead of throwing, so we must look at it.
+          let cloudOk = true;
+          let cloudError = "";
           if (typeof saveScheduleToCloud === "function") {
             try {
-              await saveScheduleToCloud(schedulePayload, focusPayload);
+              const r = await saveScheduleToCloud(schedulePayload, focusPayload);
+              cloudOk = !!(r && r.ok);
+              if (!cloudOk && r && r.error) cloudError = r.error;
             } catch (cloudErr) {
               console.warn("[Sync] cloud save failed:", cloudErr);
-              // Don't block the parent — local save already succeeded.
-              // They'll just need a working connection next time to sync.
+              cloudOk = false;
+              cloudError = String(cloudErr);
             }
           }
 
+          if (!cloudOk) {
+            // Mark local data as newer than the cloud so the clock page does not
+            // overwrite it with the stale cloud copy.
+            localStorage.setItem("routineClockCloudPending", "1");
+            if (status) {
+              status.textContent = "Saved on this device, but cloud sync failed. Open the console for details.";
+              status.classList.add("is-error");
+            }
+            console.error("[Sync] cloud save did not go through:", cloudError);
+            if (saveBtn) saveBtn.disabled = false;
+            return;
+          }
+
+          localStorage.removeItem("routineClockCloudPending");
           if (status) status.textContent = "Saved! Opening clock...";
           window.location.href = "./index.html";
         } catch (e) {
@@ -425,13 +443,13 @@
       document.getElementById("clear-schedule")?.addEventListener("click", () => {
         localStorage.removeItem("routineClockSchedule");
         localStorage.removeItem("routineClockFocusSchedule");
+        localStorage.removeItem("routineClockCloudPending");
         const s = document.getElementById("status"); if (s) s.textContent = "Schedule cleared.";
       });
     });
   </script>
 </body>
 </html>
-
 
 
 
